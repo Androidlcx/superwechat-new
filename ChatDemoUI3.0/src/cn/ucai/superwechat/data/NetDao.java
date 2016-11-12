@@ -8,7 +8,9 @@ import com.hyphenate.chat.EMGroup;
 import java.io.File;
 
 import cn.ucai.superwechat.I;
+import cn.ucai.superwechat.SuperWeChatHelper;
 import cn.ucai.superwechat.bean.Result;
+import cn.ucai.superwechat.utils.L;
 import cn.ucai.superwechat.utils.MD5;
 
 
@@ -98,15 +100,15 @@ public class NetDao {
                 .targetClass(String.class)
                 .execute(listener);
     }
-    //下载全部好友列表
-    public static void loadContact(Context context, OkHttpUtils.OnCompleteListener<String> listener){
+
+    public static void loadContact(Context context,OkHttpUtils.OnCompleteListener<String> listener){
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_DOWNLOAD_CONTACT_ALL_LIST)
                 .addParam(I.Contact.USER_NAME, EMClient.getInstance().getCurrentUser())
                 .targetClass(String.class)
                 .execute(listener);
     }
-    //创建群组到服务器
+
     public static void createGroup(Context context, EMGroup emGroup, OkHttpUtils.OnCompleteListener<String> listener){
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_CREATE_GROUP)
@@ -120,8 +122,8 @@ public class NetDao {
                 .post()
                 .execute(listener);
     }
-    //创建群组到服务器-------
-    public static void createGroup(Context context, EMGroup emGroup,File file, OkHttpUtils.OnCompleteListener<String> listener){
+
+    public static void createGroup(Context context,EMGroup emGroup,File file,OkHttpUtils.OnCompleteListener<String> listener){
         OkHttpUtils<String> utils = new OkHttpUtils<>(context);
         utils.setRequestUrl(I.REQUEST_CREATE_GROUP)
                 .addParam(I.Group.HX_ID,emGroup.getGroupId())
@@ -133,6 +135,23 @@ public class NetDao {
                 .targetClass(String.class)
                 .addFile2(file)
                 .post()
+                .execute(listener);
+    }
+
+    public static void addGroupMembers(Context context, EMGroup emGroup, OkHttpUtils.OnCompleteListener<String> listener){
+        String memberArr = "";
+        for (String m:emGroup.getMembers()){
+            if (!m.equals(SuperWeChatHelper.getInstance().getCurrentUser())){
+                memberArr += m + ",";
+            }
+        }
+        memberArr = memberArr.substring(0,memberArr.length()-1);
+        L.e("addGroupMembers","memberArr="+memberArr);
+        OkHttpUtils<String> utils = new OkHttpUtils<>(context);
+        utils.setRequestUrl(I.REQUEST_ADD_GROUP_MEMBERS)
+                .addParam(I.Member.GROUP_HX_ID,emGroup.getGroupId())
+                .addParam(I.Member.USER_NAME,memberArr)
+                .targetClass(String.class)
                 .execute(listener);
     }
 }
