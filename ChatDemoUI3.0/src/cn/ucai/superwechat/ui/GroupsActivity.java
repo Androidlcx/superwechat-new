@@ -1,10 +1,10 @@
 /**
  * Copyright (C) 2016 Hyphenate Inc. All rights reserved.
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,11 +14,11 @@
 package cn.ucai.superwechat.ui;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -33,158 +33,162 @@ import android.widget.Toast;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMGroup;
+import com.hyphenate.exceptions.HyphenateException;
 
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.ucai.superwechat.Constant;
 import cn.ucai.superwechat.R;
 import cn.ucai.superwechat.adapter.GroupAdapter;
-import com.hyphenate.exceptions.HyphenateException;
-
-import butterknife.Bind;
 import cn.ucai.superwechat.utils.MFGT;
 
-import java.util.List;
-
-
 public class GroupsActivity extends BaseActivity {
-	public static final String TAG = "GroupsActivity";
-	@Bind(R.id.img_back)
-	ImageView mImgBack;
-	@Bind(R.id.txt_title)
-	TextView mTxtTitle;
-	@Bind(R.id.list)
-	ListView mList;
-	@Bind(R.id.swipe_layout)
-	SwipeRefreshLayout mSwipeLayout;
-	protected List<EMGroup> grouplist;
-	private GroupAdapter groupAdapter;
-	private InputMethodManager inputMethodManager;
-	public static GroupsActivity instance;
-	private View progressBar;
+    public static final String TAG = "GroupsActivity";
+    @Bind(R.id.img_back)
+    ImageView mImgBack;
+    @Bind(R.id.txt_title)
+    TextView mTxtTitle;
+    @Bind(R.id.list)
+    ListView mList;
+    @Bind(R.id.swipe_layout)
+    SwipeRefreshLayout mSwipeLayout;
+    protected List<EMGroup> grouplist;
+    private GroupAdapter groupAdapter;
+    private InputMethodManager inputMethodManager;
+    public static GroupsActivity instance;
+    private View progressBar;
 
 
-	Handler handler = new Handler() {
-		public void handleMessage(Message msg) {
-			mSwipeLayout.setRefreshing(false);
-			switch (msg.what) {
-				case 0:
-					refresh();
-					break;
-				case 1:
-					Toast.makeText(GroupsActivity.this, R.string.Failed_to_get_group_chat_information, Toast.LENGTH_LONG).show();
-					break;
-				default:
-					break;
-			}
-		}
-	};
+    Handler handler = new Handler() {
+        public void handleMessage(Message msg) {
+            mSwipeLayout.setRefreshing(false);
+            switch (msg.what) {
+                case 0:
+                    refresh();
+                    break;
+                case 1:
+                    Toast.makeText(GroupsActivity.this, R.string.Failed_to_get_group_chat_information, Toast.LENGTH_LONG).show();
+                    break;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.em_fragment_groups);
+                default:
+                    break;
+            }
+        }
+    };
 
-		instance = this;
-		inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-		grouplist = EMClient.getInstance().groupManager().getAllGroups();
-		initView();
-		setListener();
-	}
 
-	private void setListener() {
-		//pull down to refresh
-		mSwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				new Thread(){
-					@Override
-					public void run() {
-						try {
-							EMClient.getInstance().groupManager().getJoinedGroupsFromServer();
-							handler.sendEmptyMessage(0);
-						} catch (HyphenateException e) {
-							e.printStackTrace();
-							handler.sendEmptyMessage(1);
-						}
-					}
-				}.start();
-			}
-		});
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.em_fragment_groups);
+        ButterKnife.bind(this);
 
-		mList.setOnItemClickListener(new OnItemClickListener() {
+        instance = this;
+        inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        grouplist = EMClient.getInstance().groupManager().getAllGroups();
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				if (position == 1) {
-					// create a new group
-					MFGT.gotoCreateNewGroup(GroupsActivity.this);
+        initView();
+        setListener();
+    }
 
-				} else if (position == 2) {
-					// join a public group
-					MFGT.gotoPublicGroup(GroupsActivity.this);
+    private void setListener() {
+        //pull down to refresh
+        mSwipeLayout.setOnRefreshListener(new OnRefreshListener() {
 
-				} else {
-					// enter group chat
-					Intent intent = new Intent(GroupsActivity.this, ChatActivity.class);
-					// it is group chat
-					intent.putExtra("chatType", Constant.CHATTYPE_GROUP);
-					intent.putExtra("userId", groupAdapter.getItem(position - 3).getGroupId());
-					startActivityForResult(intent, 0);
-				}
-			}
+            @Override
+            public void onRefresh() {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().groupManager().getJoinedGroupsFromServer();
+                            handler.sendEmptyMessage(0);
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                            handler.sendEmptyMessage(1);
+                        }
+                    }
+                }.start();
+            }
+        });
 
-		});
-		mList.setOnTouchListener(new OnTouchListener() {
+        mList.setOnItemClickListener(new OnItemClickListener() {
 
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
-					if (getCurrentFocus() != null)
-						inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-								InputMethodManager.HIDE_NOT_ALWAYS);
-				}
-				return false;
-			}
-		});
-	}
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position == 1) {
+                    // create a new group
+                    MFGT.gotoCreateNewGroup(GroupsActivity.this);
+                } else if (position == 2) {
+                    // join a public group
+                    MFGT.gotoPublicGroup(GroupsActivity.this);
+                } else {
+                    // enter group chat
+                    Intent intent = new Intent(GroupsActivity.this, ChatActivity.class);
+                    // it is group chat
+                    intent.putExtra("chatType", Constant.CHATTYPE_GROUP);
+                    intent.putExtra("userId", groupAdapter.getItem(position - 3).getGroupId());
+                    startActivityForResult(intent, 0);
+                }
+            }
 
-	private void initView() {
-		//show group list
-		groupAdapter = new GroupAdapter(this, 1, grouplist);
-		mList.setAdapter(groupAdapter);
+        });
+        mList.setOnTouchListener(new OnTouchListener() {
 
-		mSwipeLayout.setColorSchemeResources(R.color.holo_blue_bright, R.color.holo_green_light,
-				R.color.holo_orange_light, R.color.holo_red_light);
-		mImgBack.setVisibility(View.VISIBLE);
-		mTxtTitle.setVisibility(View.VISIBLE);
-		mTxtTitle.setText(getString(R.string.group_chat));
-	}
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (getWindow().getAttributes().softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN) {
+                    if (getCurrentFocus() != null)
+                        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                }
+                return false;
+            }
+        });
+    }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-	}
+    private void initView() {
+        //show group list
+        groupAdapter = new GroupAdapter(this, 1, grouplist);
+        mList.setAdapter(groupAdapter);
 
-	@Override
-	public void onResume() {
-		refresh();
-		super.onResume();
-	}
+        mSwipeLayout.setColorSchemeResources(R.color.holo_blue_bright, R.color.holo_green_light,
+                R.color.holo_orange_light, R.color.holo_red_light);
+        mImgBack.setVisibility(View.VISIBLE);
+        mTxtTitle.setVisibility(View.VISIBLE);
+        mTxtTitle.setText(getString(R.string.group_chat));
 
-	private void refresh() {
-		grouplist = EMClient.getInstance().groupManager().getAllGroups();
-		groupAdapter = new GroupAdapter(this, 1, grouplist);
-		mList.setAdapter(groupAdapter);
-		groupAdapter.notifyDataSetChanged();
-	}
+    }
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		instance = null;
-	}
-	@OnClick(R.id.img_back)
-	public void onClick(){
-		MFGT.finish(this);
-	}
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onResume() {
+        refresh();
+        super.onResume();
+    }
+
+    private void refresh() {
+        grouplist = EMClient.getInstance().groupManager().getAllGroups();
+        groupAdapter = new GroupAdapter(this, 1, grouplist);
+        mList.setAdapter(groupAdapter);
+        groupAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        instance = null;
+    }
+
+    @OnClick(R.id.img_back)
+    public void onClick() {
+        MFGT.finish(this);
+    }
 }
