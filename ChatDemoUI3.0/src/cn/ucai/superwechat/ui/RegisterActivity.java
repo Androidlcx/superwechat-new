@@ -146,7 +146,7 @@ public class RegisterActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (pd != null){
+        if (pd != null) {
             pd.dismiss();
         }
     }

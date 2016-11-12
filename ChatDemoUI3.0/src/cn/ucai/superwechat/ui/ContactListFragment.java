@@ -115,7 +115,6 @@ public class ContactListFragment extends EaseContactListFragment {
             }
         });
         titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
-//        titleBar.setVisibility(View.GONE);
         hideTitleBar();
         //设置联系人数据
         Map<String, User> m = SuperWeChatHelper.getInstance().getAppContactList();
@@ -132,8 +131,8 @@ public class ContactListFragment extends EaseContactListFragment {
                 if (user != null) {
                     String username = user.getMUserName();
                     // demo中直接进入聊天页面，实际一般是进入用户详情页
-                    MFGT.gotoFriendProfile(getActivity(),SuperWeChatHelper.getInstance().getAppContactList().get(username));
-                 //   startActivity(new Intent(getActivity(), ChatActivity.class).putExtra("userId", username));
+                    MFGT.gotoFriendProfile(getActivity(),username);
+                    //   startActivity(new Intent(getActivity(), ChatActivity.class).putExtra("userId", username));
                 }
             }
         });
@@ -189,13 +188,17 @@ public class ContactListFragment extends EaseContactListFragment {
         public void onClick(View v) {
             switch (v.getId()) {
             case R.id.application_item:
+                // 进入申请与通知页面
+                MFGT.gotoNewFriendsMsg(getActivity());
                 // 进入新的朋友
                 MFGT.gotoNewFriendsMsg(getActivity());
                 break;
             case R.id.group_item:
                 // 进入群聊列表页面
-              MFGT.gotoGroup(getActivity());
+                MFGT.gotoGroup(getActivity());
+                //startActivity(new Intent(getActivity(), GroupsActivity.class));
                 break;
+
             default:
                 break;
             }

@@ -3,6 +3,7 @@ package cn.ucai.superwechat.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.FragmentActivity;
 
 import com.hyphenate.easeui.domain.User;
 
@@ -64,10 +65,10 @@ public class MFGT {
         startActivity(context, AddContactActivity.class);
            }
 
-    public static void gotoFriendProfile(Activity context, User user){
+    public static void gotoFriendProfile(Activity context, String username){
         Intent intent = new Intent();
         intent.setClass(context,FriendProfileActivity.class);
-        intent.putExtra(I.User.USER_NAME,user);
+        intent.putExtra(I.User.USER_NAME,username);
         startActivity(context, intent);
     }
 
@@ -87,16 +88,14 @@ public class MFGT {
         intent.putExtra("userId",username);
         startActivity(context, intent);
     }
-    //进入群聊
-    public static void gotoGroup(Activity context){
+
+    public static void gotoGroup(Activity context) {
         startActivity(context, GroupsActivity.class);
     }
-    //进入群聊---
-    public static void gotoCreateNewGroup(Activity context){
+    public static void gotoCreateNewGroup(Activity context) {
         startActivity(context, NewGroupActivity.class);
     }
-    //进入群聊-----
-    public static void gotoPublicGroup(Activity context){
+    public static void gotoPublicGroup(Activity context) {
         startActivity(context, PublicGroupsActivity.class);
     }
 }
