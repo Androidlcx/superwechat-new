@@ -1114,6 +1114,7 @@ public class SuperWeChatHelper {
    }
    
    public void asyncFetchContactsFromServer(final EMValueCallBack<List<String>> callback){
+       L.e(TAG,"asyncFetchContactsFromServer...."+EMClient.getInstance().getCurrentUser());
        if(isSyncingContactsWithServer){
            return;
        }
@@ -1123,13 +1124,13 @@ public class SuperWeChatHelper {
        NetDao.loadContact(appContext, new OkHttpUtils.OnCompleteListener<String>() {
            @Override
            public void onSuccess(String s) {
-               if (s != null){
-                   Result result = ResultUtils.getListResultFromJson(s, User.class);
-                   if (result != null && result.isRetMsg()){
+               if (s!=null){
+                   Result result = ResultUtils.getListResultFromJson(s,User.class);
+                   if (result!=null && result.isRetMsg()){
                        List<User> list = (List<User>) result.getRetData();
-                       if (list != null && list.size() > 0){
-                           L.e(TAG,"list =" +list.size());
-                           Map<String, User> userlist = new HashMap<String,User>();
+                       if (list!=null && list.size()>0){
+                           L.e(TAG,"list="+list.size());
+                           Map<String, User> userlist = new HashMap<String, User>();
                            for (User user : list) {
                                EaseCommonUtils.setAppUserInitialLetter(user);
                                userlist.put(user.getMUserName(), user);
@@ -1152,7 +1153,7 @@ public class SuperWeChatHelper {
 
            }
        });
-
+       
        new Thread(){
            @Override
            public void run(){
