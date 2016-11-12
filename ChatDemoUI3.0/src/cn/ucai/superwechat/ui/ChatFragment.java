@@ -100,7 +100,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
         }
         super.setUpView();
         // set click listener
-         titleBar.setLeftLayoutClickListener(new OnClickListener() {
+        titleBar.setLeftLayoutClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -112,7 +112,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
                 onBackPressed();
             }
         });
-        titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
+       titleBar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
         ((EaseEmojiconMenu)inputMenu.getEmojiconMenu()).addEmojiconGroup(EmojiconExampleGroupData.getData());
         if(chatType == EaseConstant.CHATTYPE_GROUP){
             inputMenu.getPrimaryMenu().getEditText().addTextChangedListener(new TextWatcher() {
@@ -262,7 +262,7 @@ public class ChatFragment extends EaseChatFragment implements EaseChatFragmentHe
 //        Intent intent = new Intent(getActivity(), UserProfileActivity.class);
 //        intent.putExtra("username", username);
 //        startActivity(intent);
-        MFGT.gotoFriendProfile(getActivity(),SuperWeChatHelper.getInstance().getAppContactList().get(username));
+        MFGT.gotoFriendProfile(getActivity(),username);
     }
     
     @Override
